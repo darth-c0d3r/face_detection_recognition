@@ -33,64 +33,63 @@ def train(model, optim, db):
 	# for epoch in range(1, epochs+1):
 
 		train_loader = torch.utils.data.DataLoader(db['train'],batch_size=batch_size, shuffle=True)
-		print(enumerate(train_loader))
+		# print(enumerate(train_loader))
 		# Update (Train)
-	# 	model.train()
-	# 	for batch_idx, (data, target) in enumerate(train_loader):
-
-	# 		# print(data.size())
-
-	# 		data, target = Variable(data), Variable(target)
-	# 		optimizer.zero_grad()
-	# 		output = model(data)
-	# 		loss = criterion(output,target)
-	# 		loss.backward()
-	# 		optimizer.step()
-
-	# 		if batch_idx % report_every == 0:
-	# 			print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-	# 				epoch, batch_idx * len(data), len(train_loader.dataset),
-	# 				100. * batch_idx / len(train_loader), loss.item()))
+		model.train()
+		for batch_idx, (data, target) in enumerate(train_loader):
 
 
-	# 	# Evaluate
-	# 	model.eval()
-	# 	for name in ['train', 'eval']:
-	# 		test_loss = float(0)
-	# 		correct = 0
-	# 		test_loader = torch.utils.data.DataLoader(db[name], batch_size=batch_size, shuffle=True)
-	# 		for data, target in test_loader:
-	# 			with torch.no_grad():
-	# 				data = Variable(data)
-	# 			target = Variable(target)
-	# 			output = model(data)
-	# 			test_loss += criterion(output, target).item() # sum up batch loss
-	# 			pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-	# 			correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-	# 		test_loss /= len(test_loader.dataset)
-	# 		accuracy = float(correct) / len(test_loader.dataset)
+			data, target = Variable(data), Variable(target)
+			optimizer.zero_grad()
+			output = model(data)
+			loss = criterion(output,target)
+			loss.backward()
+			optimizer.step()
 
-	# 		print(name+' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.6f})'.format(
-	# 			test_loss, correct, len(test_loader.dataset),
-	# 			accuracy))
-	# 	print('')
+			if batch_idx % report_every == 0:
+				print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+					epoch, batch_idx * len(data), len(train_loader.dataset),
+					100. * batch_idx / len(train_loader), loss.item()))
 
-	# model.eval()
-	# tally_1 = [0]*n_classes
-	# tally_2 = [0]*n_classes
-	# test_loader = torch.utils.data.DataLoader(db['eval'], batch_size=batch_size, shuffle=False)
-	# for data, target in test_loader:
-	# 	with torch.no_grad():
-	# 		data = Variable(data)
-	# 	target = Variable(target)
-	# 	output = model(data)
-	# 	pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-	# 	for i in range(pred.size()[0]):
-	# 		# print("%d,%d"%(target[i].item(), pred[i][0].item()))
-	# 		tally_1[target[i].item()] += (target[i].item() == pred[i][0].item())
-	# 		tally_2[pred[i][0].item()] += (target[i].item() != pred[i][0].item())
-	# print(tally_1)
-	# print(tally_2)
+
+		# Evaluate
+		model.eval()
+		for name in ['train', 'eval']:
+			test_loss = float(0)
+			correct = 0
+			test_loader = torch.utils.data.DataLoader(db[name], batch_size=batch_size, shuffle=True)
+			for data, target in test_loader:
+				with torch.no_grad():
+					data = Variable(data)
+				target = Variable(target)
+				output = model(data)
+				test_loss += criterion(output, target).item() # sum up batch loss
+				pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+				correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+			test_loss /= len(test_loader.dataset)
+			accuracy = float(correct) / len(test_loader.dataset)
+
+			print(name+' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.6f})'.format(
+				test_loss, correct, len(test_loader.dataset),
+				accuracy))
+		print('')
+
+	model.eval()
+	tally_1 = [0]*n_classes
+	tally_2 = [0]*n_classes
+	test_loader = torch.utils.data.DataLoader(db['eval'], batch_size=batch_size, shuffle=False)
+	for data, target in test_loader:
+		with torch.no_grad():
+			data = Variable(data)
+		target = Variable(target)
+		output = model(data)
+		pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+		for i in range(pred.size()[0]):
+			# print("%d,%d"%(target[i].item(), pred[i][0].item()))
+			tally_1[target[i].item()] += (target[i].item() == pred[i][0].item())
+			tally_2[pred[i][0].item()] += (target[i].item() != pred[i][0].item())
+	print(tally_1)
+	print(tally_2)
 
 def main():
 	dataset = getFacesDataset(n_images,n_classes,total_images)
